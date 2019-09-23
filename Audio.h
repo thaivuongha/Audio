@@ -39,36 +39,96 @@ public:
 	Audio();
 
 	virtual ~Audio();
-
+	/**
+	 *@brief Init audio
+	 *
+	 *@param NULL
+	 *
+	 *@return NULL
+	 */
 	void beginAudio(void);
-
+	/**
+	 *@brief Play mp3 file with directory to mp3 file
+	 *
+	 *@param[in] Directory to mp3 file ex: /sdcard/song1.mp3
+	 *
+	 *@return NULL
+	 */
 	void playMp3File(char *filename);
-
+	/**
+	 *@brief Play mp3 file with index of mp3 file
+	 *
+	 *@param[in] Index of file
+	 *
+	 *@return NULL
+	 */
 	void playMp3File(int index);
-
+	/**
+	 *@brief
+	 *
+	 *@param
+	 *
+	 *@return
+	 */
 	void playRepeatMp3File(char *filename);
-
+	/**
+	 *@brief Pause mp3 file that is playing
+	 *
+	 *@param[in] NULL
+	 *
+	 *@return NULL
+	 */
 	void pauseMp3(void);
-
+	/**
+	 *@brief Resume mp3 file that is paused before
+	 *
+	 *@param[in] NULL
+	 *
+	 *@return NULL
+	 */
 	void resumeMp3(void);
-
+	/**
+	 *@brief Stop mp3 file that is playing
+	 *
+	 *@param[in] NULL
+	 *
+	 *@return NULL
+	 */
 	void stopMp3(void);
-
+	/**
+	 *@brief Check state of Audio periperal
+	 *
+	 *@param[in] NULL
+	 *
+	 *@return NULL
+	 */
 	bool isPlayingMp3(void);
-
+	/**
+	 *@brief Init Audio task
+	 *
+	 *@param
+	 *
+	 *@return
+	 */
 	void getFilename(void);
-
-	void increaseVolum(void);
-
-
-
+	/**
+	 *@brief Play next mp3 file	on list
+	 *
+	 *@param[in] NULL
+	 *
+	 *@return NULL
+	 */
+	void playNextMp3(void);
+	/**
+	 *
+	 */
+	audio_element_state_t getStateAudio(void);
 
 
 
 private:
 
-
-
+	static void initSD(void);
 	static FILE *getFile(int nextFile);
 
 	static int my_sdcard_read_cb(audio_element_handle_t el, char *buf, int len,
