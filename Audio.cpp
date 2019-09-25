@@ -126,17 +126,25 @@ void Audio::playMp3File(int index) {
 	index--;
 	audio_element_state_t el_state = audio_element_get_state(i2s_stream_writer);
 	if (el_state == AEL_STATE_INIT) {
+		Audio::stopMp3();
 		getFile(index);
 		audio_pipeline_run(pipeline);
+
 	} else if (el_state == AEL_STATE_PAUSED) {
+		Audio::stopMp3();
 		getFile(index);
 		audio_pipeline_resume(pipeline);
+
 	} else if (el_state == AEL_STATE_FINISHED) {
+		Audio::stopMp3();
 		getFile(index);
 		audio_pipeline_run(pipeline);
+
 	} else if (el_state == AEL_STATE_STOPPED) {
+		Audio::stopMp3();
 		getFile(index);
 		audio_pipeline_run(pipeline);
+
 	} else if (el_state == AEL_STATE_RUNNING) {
 		Audio::stopMp3();
 		getFile(index);
@@ -146,7 +154,7 @@ void Audio::playMp3File(int index) {
 }
 
 void Audio::playNextMp3(void) {
-	Audio::stopMp3();
+
 	if (currentIndex >= numMp3) {
 		currentIndex = 0;
 	}
@@ -159,8 +167,6 @@ void Audio::playRepeatMp3File(char *filename) {
 }
 
 void Audio::stopMp3(void) {
-	audio_element_state_t el_state = audio_element_get_state(i2s_stream_writer);
-	if (el_state == AEL_STATE_RUNNING) {
 		audio_pipeline_pause(pipeline);
 		if (file != NULL) {
 			fclose(file);
@@ -168,7 +174,6 @@ void Audio::stopMp3(void) {
 		}
 		audio_pipeline_stop(pipeline);
 		audio_pipeline_wait_for_stop(pipeline);
-	}
 }
 
 bool Audio::isPlayingMp3(void) {
@@ -204,8 +209,8 @@ audio_element_state_t Audio::getStateAudio(void) {
 
 void Audio::taskRunPipelieAudio(void *param) {
 
-	esp_log_level_set("*", ESP_LOG_WARN);
-	esp_log_level_set(TAG, ESP_LOG_INFO);
+	esp_log_level_set("*", ESP_LOG_INFO);
+
 
 	ESP_LOGI(TAG, "[1.0] Initialize peripherals management");
 	esp_periph_config_t periph_cfg =
@@ -230,11 +235,13 @@ void Audio::taskRunPipelieAudio(void *param) {
 							ESP_LOGE(TAG,
 									"Failed to initialize the card (%d). Make sure SD card lines have pull-up resistors in place.",
 									ret);
-						}
+							ESP_LOGE(TAG,
+									"Please insert SD Card");
 
+						}
 					}
 
-					sdmmc_card_print_info(stdout, card);
+			//		sdmmc_card_print_info(stdout, card);
 					// All done, unmount partition and disable SDMMC host peripheral
 #endif
 #if (SD_BOARD_LYRA)
@@ -356,8 +363,9 @@ void Audio::taskRunPipelieAudio(void *param) {
 						i2s_stream_writer);
 				if (el_state == AEL_STATE_FINISHED) {
 					ESP_LOGI(TAG, "[ * ] Finished, advancing to the next song");
-					audio_pipeline_stop(pipeline);
-					audio_pipeline_wait_for_stop(pipeline);
+//					audio_pipeline_stop(pipeline);
+//					audio_pipeline_wait_for_stop(pipeline);
+					audio_pipeline_terminate(pipeline);
 //					getFile(NEXT);
 //					audio_pipeline_run(pipeline);
 				} else if (el_state == AEL_STATE_STOPPED) {
