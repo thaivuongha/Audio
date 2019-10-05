@@ -29,7 +29,7 @@ static const char *mp3_file[] = { "/sdcard/test.mp3", "/sdcard/test1.mp3",
 #define NEXT    4
 #define SD_BOARD_IOTMAKER 1
 #define SD_BOARD_LYRA 0
-#define BCK_PIN   5
+#define BCK_PIN   27
 #define DATA_PIN  26
 #define LRCK_PIN  25
 
@@ -125,32 +125,42 @@ void Audio::playMp3File(int index) {
 	}
 	index--;
 	audio_element_state_t el_state = audio_element_get_state(i2s_stream_writer);
+	printf("state : %d \n", el_state);
 	if (el_state == AEL_STATE_INIT) {
 		Audio::stopMp3();
+		vTaskDelay(10 / portTICK_PERIOD_MS);
 		getFile(index);
+		vTaskDelay(10 / portTICK_PERIOD_MS);
 		audio_pipeline_run(pipeline);
 
 	} else if (el_state == AEL_STATE_PAUSED) {
 		Audio::stopMp3();
+		vTaskDelay(10 / portTICK_PERIOD_MS);
 		getFile(index);
+		vTaskDelay(10 / portTICK_PERIOD_MS);
 		audio_pipeline_resume(pipeline);
 
 	} else if (el_state == AEL_STATE_FINISHED) {
 		Audio::stopMp3();
+		vTaskDelay(10 / portTICK_PERIOD_MS);
 		getFile(index);
-		audio_pipeline_run(pipeline);
+		vTaskDelay(10 / portTICK_PERIOD_MS);
+		audio_pipeline_resume(pipeline);
 
 	} else if (el_state == AEL_STATE_STOPPED) {
 		Audio::stopMp3();
+		vTaskDelay(10 / portTICK_PERIOD_MS);
 		getFile(index);
-		audio_pipeline_run(pipeline);
+		vTaskDelay(10 / portTICK_PERIOD_MS);
+		audio_pipeline_resume(pipeline);
 
 	} else if (el_state == AEL_STATE_RUNNING) {
 		Audio::stopMp3();
+		vTaskDelay(10 / portTICK_PERIOD_MS);
 		getFile(index);
-		audio_pipeline_run(pipeline);
+		vTaskDelay(10 / portTICK_PERIOD_MS);
+		audio_pipeline_resume(pipeline);
 	}
-
 }
 
 void Audio::playNextMp3(void) {
@@ -159,6 +169,7 @@ void Audio::playNextMp3(void) {
 		currentIndex = 0;
 	}
 	currentIndex++;
+	printf("play num ::: %d \n", currentIndex);
 	Audio::playMp3File(currentIndex);
 }
 
@@ -167,13 +178,13 @@ void Audio::playRepeatMp3File(char *filename) {
 }
 
 void Audio::stopMp3(void) {
-		audio_pipeline_pause(pipeline);
-		if (file != NULL) {
-			fclose(file);
-			file = NULL;
-		}
-		audio_pipeline_stop(pipeline);
-		audio_pipeline_wait_for_stop(pipeline);
+	audio_pipeline_pause(pipeline);
+	if (file != NULL) {
+		fclose(file);
+		file = NULL;
+	}
+	audio_pipeline_stop(pipeline);
+	audio_pipeline_wait_for_stop(pipeline);
 }
 
 bool Audio::isPlayingMp3(void) {
@@ -211,7 +222,6 @@ void Audio::taskRunPipelieAudio(void *param) {
 
 	esp_log_level_set("*", ESP_LOG_INFO);
 
-
 	ESP_LOGI(TAG, "[1.0] Initialize peripherals management");
 	esp_periph_config_t periph_cfg =
 					DEFAULT_ESP_PERIPH_SET_CONFIG();
@@ -241,7 +251,7 @@ void Audio::taskRunPipelieAudio(void *param) {
 						}
 					}
 
-			//		sdmmc_card_print_info(stdout, card);
+					//		sdmmc_card_print_info(stdout, card);
 					// All done, unmount partition and disable SDMMC host peripheral
 #endif
 #if (SD_BOARD_LYRA)
@@ -363,9 +373,9 @@ void Audio::taskRunPipelieAudio(void *param) {
 						i2s_stream_writer);
 				if (el_state == AEL_STATE_FINISHED) {
 					ESP_LOGI(TAG, "[ * ] Finished, advancing to the next song");
-//					audio_pipeline_stop(pipeline);
-//					audio_pipeline_wait_for_stop(pipeline);
-					audio_pipeline_terminate(pipeline);
+					audio_pipeline_stop(pipeline);
+					audio_pipeline_wait_for_stop(pipeline);
+//					audio_pipeline_terminate(pipeline);
 //					getFile(NEXT);
 //					audio_pipeline_run(pipeline);
 				} else if (el_state == AEL_STATE_STOPPED) {
