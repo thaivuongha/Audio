@@ -131,6 +131,8 @@ private:
 	static void initSD(void);
 	static FILE *getFile(int nextFile);
 
+	static FILE *closeFile(void);
+
 	static int my_sdcard_read_cb(audio_element_handle_t el, char *buf, int len,
 			TickType_t wait_time, void *ctx);
 

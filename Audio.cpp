@@ -375,9 +375,7 @@ void Audio::taskRunPipelieAudio(void *param) {
 					ESP_LOGI(TAG, "[ * ] Finished, advancing to the next song");
 					audio_pipeline_stop(pipeline);
 					audio_pipeline_wait_for_stop(pipeline);
-//					audio_pipeline_terminate(pipeline);
-//					getFile(NEXT);
-//					audio_pipeline_run(pipeline);
+					Audio::closeFile();
 				} else if (el_state == AEL_STATE_STOPPED) {
 					printf("stopped heroinertup\n");
 				}
@@ -389,7 +387,6 @@ void Audio::taskRunPipelieAudio(void *param) {
 
 int Audio::my_sdcard_read_cb(audio_element_handle_t el, char *buf, int len,
 		TickType_t wait_time, void *ctx) {
-
 	int read_len = fread(buf, 1, len, getFile(currentIndex));
 	if (read_len == 0) {
 		read_len = AEL_IO_DONE;
@@ -410,6 +407,14 @@ FILE *Audio::getFile(int next_file) {
 			return NULL;
 		}
 	}
+	return file;
+}
 
+FILE *Audio::closeFile(void) {
+
+	if (file != NULL) {
+		fclose(file);
+		file = NULL;
+	}
 	return file;
 }
